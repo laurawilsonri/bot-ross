@@ -22,7 +22,9 @@ print("GPU Available: ", gpu_available)
 
 parser = argparse.ArgumentParser(description='DCGAN')
 
-parser.add_argument('--img-dir', type=str, default='./data/celebA',
+# parser.add_argument('--img-dir', type=str, default='./data/celebA',
+#                     help='Data where training images live')
+parser.add_argument('--img-dir', type=str, default='./data',
                     help='Data where training images live')
 
 parser.add_argument('--out-dir', type=str, default='./output',
