@@ -206,7 +206,7 @@ class Discriminator_Model(tf.keras.Model):
 
         :return: a batch of values indicating whether the image is real or fake, shape=[batch_size, 1]
         """
-
+        print(inputs)
         return self.discriminatorModel(inputs)
 
     def loss_function(self, disc_real_output, disc_fake_output):
