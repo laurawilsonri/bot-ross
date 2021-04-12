@@ -1,7 +1,8 @@
 import tensorflow as tf
 from tensorflow.keras import Model
 from tensorflow.keras.layers import Dense, Flatten, Conv2D, BatchNormalization, LeakyReLU, Reshape, Conv2DTranspose
-from preprocess import load_image_batch
+# from preprocess import load_image_batch
+from preprocess import load_images
 import tensorflow_gan as tfgan
 import tensorflow_hub as hub
 
@@ -288,7 +289,8 @@ def test(generator):
 
 def main():
     # Load a batch of images (to feed to the discriminator)
-    dataset_iterator = load_image_batch(args.img_dir, batch_size=args.batch_size, n_threads=args.num_data_threads)
+    # dataset_iterator = load_image_batch(args.img_dir, batch_size=args.batch_size, n_threads=args.num_data_threads)
+    dataset_iterator = load_images(args.img_dir)
 
     # Initialize generator and discriminator models
     generator = Generator_Model()
