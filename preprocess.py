@@ -12,7 +12,10 @@ def clean_image(file_path):
     # Load & normalize image
     image = tf.io.decode_png(tf.io.read_file(file_path), channels=3)
     image = tf.image.convert_image_dtype(image, tf.float32)
+    image = tf.image.resize(image, [256,256])
     image = (image - 0.5) * 2 # Rescale data to range (-1, 1) #TODO do we need this?
+    print(image.shape)
+    print("CLEANING")
     return image
 
 

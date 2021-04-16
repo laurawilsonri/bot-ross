@@ -32,18 +32,6 @@ def load(image_name):
 
 # plt.show()
 
-def load_image_train(image_file):
-  input_image, real_image = load(image_file)
-  #print(input_image)
-
-  return input_image, real_image
-
-
-def load_image_test(image_file):
-  input_image, real_image = load(image_file)
-
-  return input_image, real_image
-
 
 def downsample(filters, size, apply_batchnorm=True):
   initializer = tf.random_normal_initializer(0., 0.02)
@@ -82,8 +70,9 @@ def upsample(filters, size, apply_dropout=False):
 
 
 def Generator():
-  #inputs = tf.keras.layers.Input(shape=[256, 256, 3])
-  inputs = tf.keras.layers.Input(shape=[337, 450, 3])
+  inputs = tf.keras.layers.Input(shape=[256, 256, 3])
+  #inputs = tf.keras.layers.Input(shape=[337, 450, 3])
+  #inputs = tf.keras.layers.Input(shape=[256, 342, 3])
 
   down_stack = [
     downsample(64, 4, apply_batchnorm=False),  # (bs, 128, 128, 64)
@@ -94,6 +83,7 @@ def Generator():
     downsample(512, 4),  # (bs, 4, 4, 512)
     downsample(512, 4),  # (bs, 2, 2, 512)
     downsample(512, 4),  # (bs, 1, 1, 512)
+    #downsample(512, 4),  # (bs, 1, 1, 512)
   ]
 
   up_stack = [
@@ -117,19 +107,19 @@ def Generator():
   x = inputs
 
   # Downsampling through the model
-  # skips = []
-  # for down in down_stack:
-  #   x = down(x)
-  #   skips.append(x)
-  #   print("x: ", x.shape)
+  skips = []
+  for down in down_stack:
+    x = down(x)
+    skips.append(x)
+    print("down: ", x.shape)
 
-  # skips = reversed(skips[:-1])
+  skips = reversed(skips[:-1])
 
   # # Upsampling and establishing the skip connections
-  # for up, skip in zip(up_stack, skips):
-  #   x = up(x)
-  #   print("x: ", x.shape, "skip: ", skip.shape)
-  #   x = tf.keras.layers.Concatenate()([x, skip])
+  for up, skip in zip(up_stack, skips):
+    x = up(x)
+    print("up: ", x.shape, " skip: ", skip)
+    x = tf.keras.layers.Concatenate()([x, skip])
 
   x = last(x)
 
@@ -149,10 +139,10 @@ def generator_loss(disc_generated_output, gen_output, target):
 def Discriminator():
   initializer = tf.random_normal_initializer(0., 0.02)
 
-  # inp = tf.keras.layers.Input(shape=[256, 256, 3], name='input_image')
-  # tar = tf.keras.layers.Input(shape=[256, 256, 3], name='target_image')
-  inp = tf.keras.layers.Input(shape=[337, 450, 3], name='input_image')
-  tar = tf.keras.layers.Input(shape=[337, 450, 3], name='target_image')
+  inp = tf.keras.layers.Input(shape=[256, 256, 3], name='input_image')
+  tar = tf.keras.layers.Input(shape=[256, 256, 3], name='target_image')
+  # inp = tf.keras.layers.Input(shape=[337, 450, 3], name='input_image')
+  # tar = tf.keras.layers.Input(shape=[337, 450, 3], name='target_image')
 
   x = tf.keras.layers.concatenate([inp, tar])  # (bs, 256, 256, channels*2)
 
@@ -195,10 +185,10 @@ def generate_images(model, test_input, tar):
   display_list = [test_input[0], tar[0], prediction[0]]
   title = ['Input Image', 'Ground Truth', 'Predicted Image']
 
+  # show example
   for i in range(3):
     plt.subplot(1, 3, i+1)
     plt.title(title[i])
-    print(display_list[i])
     # getting the pixel values between [0, 1] to plot it.
     plt.imshow(display_list[i] * 0.5 + 0.5)
     plt.axis('off')
@@ -234,7 +224,6 @@ def train_step(input_image, target, epoch):
     tf.summary.scalar('disc_loss', disc_loss, step=epoch)
 
 def fit(train_ds, epochs, test_ds):
-  print("IN FIT")
   for epoch in range(epochs):
     start = time.time()
 
@@ -300,11 +289,6 @@ def main():
     
     # for example_input, example_target in test_dataset.take(1):
     #   generate_images(generator, example_input, example_target)
-    
-    EPOCHS = 150
-    log_dir="logs/"
-    
-    summary_writer = tf.summary.create_file_writer(log_dir + "fit/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S"))
 
     fit(train_dataset, EPOCHS, test_dataset)
     print("AFTER FIT")
@@ -313,18 +297,28 @@ def main():
     for inp, tar in test_dataset.take(5):
       generate_images(generator, inp, tar)
 
+
 if __name__ == "__main__":
     generator = Generator()
     discriminator = Discriminator()
 
     generator_optimizer = tf.keras.optimizers.Adam(2e-4, beta_1=0.5)
     discriminator_optimizer = tf.keras.optimizers.Adam(2e-4, beta_1=0.5)
+
+    loss_object = tf.keras.losses.BinaryCrossentropy(from_logits=True)
+
+    LAMBDA = 100
     
-    # checkpoint_dir = './training_checkpoints'
-    # checkpoint_prefix = os.path.join(checkpoint_dir, "ckpt")
-    # checkpoint = tf.train.Checkpoint(generator_optimizer=generator_optimizer,
-    #                              discriminator_optimizer=discriminator_optimizer,
-    #                              generator=generator,
-    #                              discriminator=discriminator)
+    checkpoint_dir = './training_checkpoints'
+    checkpoint_prefix = os.path.join(checkpoint_dir, "ckpt")
+    checkpoint = tf.train.Checkpoint(generator_optimizer=generator_optimizer,
+                                 discriminator_optimizer=discriminator_optimizer,
+                                 generator=generator,
+                                 discriminator=discriminator)
+
+    EPOCHS = 150
+    log_dir="logs/"
+    
+    summary_writer = tf.summary.create_file_writer(log_dir + "fit/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S"))
 
     main()
