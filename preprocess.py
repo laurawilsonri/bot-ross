@@ -12,7 +12,7 @@ def clean_image(file_path):
     # Load & normalize image
     image = tf.io.decode_png(tf.io.read_file(file_path), channels=3)
     image = tf.image.convert_image_dtype(image, tf.float32)
-    image = (image - 0.5) * 2 # Rescale data to range (-1, 1)
+    image = (image - 0.5) * 2 # Rescale data to range (-1, 1) #TODO do we need this?
     return image
 
 
@@ -36,35 +36,36 @@ Loads the image and label maks.
 '''
 def get_image_label_pair(img_path, label_path):
   img = clean_image(img_path)
-  label = tf.io.read_file(label_path)
+  #label = tf.io.read_file(label_path)
+  label = clean_image(label_path)
   # TODO maybe clean label image ??
 
-  return img, label
+  return label, img
 
 
 '''
 Builds a dataset of images from the given directory.
 '''
-def load_images(train_data_dir):
+def load_images(train_data_dir, batch_size=1):
     print("LOADING IMAGES FROM: ", train_data_dir)
 
     data_paths = get_data_paths("data/train")
     dataset = tf.data.Dataset.from_tensor_slices(data_paths)
     #dataset = dataset.shuffle(buffer_size=250000)
     dataset = dataset.map(map_func=get_image_label_pair, num_parallel_calls=2)
-    dataset = dataset.batch(5, drop_remainder=True)
+    dataset = dataset.batch(batch_size, drop_remainder=True)
     dataset = dataset.prefetch(1)
 
     return dataset
 
 
 # Example usage
-dataset = load_images("data/train")
-for imgs, labels in dataset.as_numpy_iterator():
-    # imgs is a list of batch_size of images
-    # labels is a list of batch_size of labels
-    # labels[0] is the label mask for imgs[0]
-    print("num imgs: ", len(imgs))
-    print("num labels: ", len(labels))
+# dataset = load_images("data/train")
+# for imgs, labels in dataset.as_numpy_iterator():
+#     # imgs is a list of batch_size of images
+#     # labels is a list of batch_size of labels
+#     # labels[0] is the label mask for imgs[0]
+#     print("num imgs: ", len(imgs))
+#     print("num labels: ", len(labels))
     
 
