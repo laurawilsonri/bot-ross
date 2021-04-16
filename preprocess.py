@@ -14,8 +14,6 @@ def clean_image(file_path):
     image = tf.image.convert_image_dtype(image, tf.float32)
     image = tf.image.resize(image, [256,256])
     image = (image - 0.5) * 2 # Rescale data to range (-1, 1) #TODO do we need this?
-    print(image.shape)
-    print("CLEANING")
     return image
 
 

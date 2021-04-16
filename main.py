@@ -7,22 +7,6 @@ from preprocess import load_images
 from matplotlib import pyplot as plt
 #from IPython import display
 
-def load(image_name):
-  image = tf.io.read_file('data/train/images/' + image_name)
-  image = tf.image.decode_png(image, channels=3)
-  # image = tf.image.resize(image, )
-  print("IMAGE SHAPE: ", image.shape)
-
-  label = tf.io.read_file('data/train/labels/' + image_name)
-  label = tf.image.decode_png(label, channels=3)
-  print("LABEL SHAPE: ", label.shape)
-
-  image = tf.cast(image, tf.float32)
-  label = tf.cast(label, tf.float32)
-
-  return image, label
-
-
 # casting to int for matplotlib to show the image
 # TO SHOW AN EXAMPLE!!
 # plt.figure()
@@ -83,7 +67,6 @@ def Generator():
     downsample(512, 4),  # (bs, 4, 4, 512)
     downsample(512, 4),  # (bs, 2, 2, 512)
     downsample(512, 4),  # (bs, 1, 1, 512)
-    #downsample(512, 4),  # (bs, 1, 1, 512)
   ]
 
   up_stack = [
@@ -111,14 +94,14 @@ def Generator():
   for down in down_stack:
     x = down(x)
     skips.append(x)
-    print("down: ", x.shape)
+    #print("down: ", x.shape) <-- these print lines are helpful for matching sizes
 
   skips = reversed(skips[:-1])
 
   # # Upsampling and establishing the skip connections
   for up, skip in zip(up_stack, skips):
     x = up(x)
-    print("up: ", x.shape, " skip: ", skip)
+    #print("up: ", x.shape, " skip: ", skip)
     x = tf.keras.layers.Concatenate()([x, skip])
 
   x = last(x)
@@ -141,8 +124,6 @@ def Discriminator():
 
   inp = tf.keras.layers.Input(shape=[256, 256, 3], name='input_image')
   tar = tf.keras.layers.Input(shape=[256, 256, 3], name='target_image')
-  # inp = tf.keras.layers.Input(shape=[337, 450, 3], name='input_image')
-  # tar = tf.keras.layers.Input(shape=[337, 450, 3], name='target_image')
 
   x = tf.keras.layers.concatenate([inp, tar])  # (bs, 256, 256, channels*2)
 
@@ -291,7 +272,6 @@ def main():
     #   generate_images(generator, example_input, example_target)
 
     fit(train_dataset, EPOCHS, test_dataset)
-    print("AFTER FIT")
     
     # Run the trained model on a few examples from the test dataset
     for inp, tar in test_dataset.take(5):
