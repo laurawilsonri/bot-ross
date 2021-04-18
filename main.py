@@ -3,7 +3,6 @@ import os
 import time
 import datetime
 from preprocess import load_images
-from gen_images import generate_images
 
 from matplotlib import pyplot as plt
 #from IPython import display
@@ -16,6 +15,23 @@ from matplotlib import pyplot as plt
 # plt.imshow(re/255.0)
 
 # plt.show()
+
+def generate_images(model, test_input, tar, img_title=""):
+  prediction = model(test_input, training=True)
+  plt.figure(figsize=(15, 15))
+
+  display_list = [test_input[0], tar[0], prediction[0]]
+  title = ['Input Image', 'Ground Truth', 'Predicted Image']
+
+  # show example
+  for i in range(3):
+    plt.subplot(1, 3, i+1)
+    plt.title(title[i])
+    # getting the pixel values between [0, 1] to plot it.
+    plt.imshow(display_list[i] * 0.5 + 0.5)
+    plt.axis('off')
+  #plt.show()
+  plt.savefig("outputs/img-"+ str(img_title))
 
 
 def downsample(filters, size, apply_batchnorm=True):
@@ -276,13 +292,24 @@ if __name__ == "__main__":
     checkpoint_dir = './training_checkpoints'
     checkpoint_prefix = os.path.join(checkpoint_dir, "ckpt")
     checkpoint = tf.train.Checkpoint(generator_optimizer=generator_optimizer,
-                                 discriminator_optimizer=discriminator_optimizer,
-                                 generator=generator,
-                                 discriminator=discriminator)
-
-    EPOCHS = 150
-    log_dir="logs/"
+                                     discriminator_optimizer=discriminator_optimizer,
+                                     generator=generator,
+                                     discriminator=discriminator)
     
-    summary_writer = tf.summary.create_file_writer(log_dir + "fit/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S"))
+    GENERATE_IMG_FROM_CHECKPOINT = True
+    
+    if GENERATE_IMG_FROM_CHECKPOINT:
+        checkpoint.restore(tf.train.latest_checkpoint(checkpoint_dir))
+        test_dataset = load_images("data/train", batch_size=1)
+        i = 0
+        for example_input, example_target in test_dataset.take(20):
+          generate_images(generator, example_input, example_target, img_title=i)
+          i+=1
+        
+    else:
+        EPOCHS = 150
+        log_dir="logs/"
 
-    main()
+        summary_writer = tf.summary.create_file_writer(log_dir + "fit/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S"))
+
+        main()
