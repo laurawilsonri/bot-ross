@@ -3,6 +3,7 @@ import os
 import time
 import datetime
 from preprocess import load_images
+from gen_images import generate_images
 
 from matplotlib import pyplot as plt
 #from IPython import display
@@ -157,23 +158,6 @@ def discriminator_loss(disc_real_output, disc_generated_output):
   total_disc_loss = real_loss + generated_loss
 
   return total_disc_loss
-
-
-def generate_images(model, test_input, tar):
-  prediction = model(test_input, training=True)
-  plt.figure(figsize=(15, 15))
-
-  display_list = [test_input[0], tar[0], prediction[0]]
-  title = ['Input Image', 'Ground Truth', 'Predicted Image']
-
-  # show example
-  for i in range(3):
-    plt.subplot(1, 3, i+1)
-    plt.title(title[i])
-    # getting the pixel values between [0, 1] to plot it.
-    plt.imshow(display_list[i] * 0.5 + 0.5)
-    plt.axis('off')
-  plt.show()
 
 
 
