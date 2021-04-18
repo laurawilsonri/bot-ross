@@ -268,8 +268,8 @@ def main():
     # plt.imshow(disc_out[0, ..., -1], vmin=-20, vmax=20, cmap='RdBu_r')
     # plt.colorbar()
     
-    # for example_input, example_target in test_dataset.take(1):
-    #   generate_images(generator, example_input, example_target)
+    for example_input, example_target in test_dataset.take(1):
+      generate_images(generator, example_input, example_target)
 
     fit(train_dataset, EPOCHS, test_dataset)
     
