@@ -296,18 +296,18 @@ if __name__ == "__main__":
                                      generator=generator,
                                      discriminator=discriminator)
     
-    GENERATE_IMG_FROM_CHECKPOINT = False
+    GENERATE_IMG_FROM_CHECKPOINT = True
     
     if GENERATE_IMG_FROM_CHECKPOINT:
         checkpoint.restore(tf.train.latest_checkpoint(checkpoint_dir))
-        test_dataset = load_images("data/test", batch_size=1)
+        test_dataset = load_images("test", batch_size=1)
         i = 0
-        for example_input, example_target in test_dataset.take(1):
+        for example_input, example_target in test_dataset.take(20):
           generate_images(generator, example_input, example_target, img_title=i)
           i+=1
         
     else:
-        EPOCHS = 150
+        EPOCHS = 101
         log_dir="logs/"
 
         summary_writer = tf.summary.create_file_writer(log_dir + "fit/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S"))
