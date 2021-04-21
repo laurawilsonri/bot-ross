@@ -241,7 +241,7 @@ def main():
     OUTPUT_CHANNELS = 3
     
     train_dataset = load_images("data/train", batch_size=BATCH_SIZE)
-    test_dataset = load_images("data/train", batch_size=BATCH_SIZE)
+    test_dataset = load_images("data/test", batch_size=BATCH_SIZE)
 
     # down_model = downsample(3, 4)
     # down_result = down_model(tf.expand_dims(inp, 0))
