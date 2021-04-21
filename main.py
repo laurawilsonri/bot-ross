@@ -204,14 +204,14 @@ def train_step(input_image, target, epoch):
     tf.summary.scalar('gen_l1_loss', gen_l1_loss, step=epoch)
     tf.summary.scalar('disc_loss', disc_loss, step=epoch)
 
-def fit(train_ds, epochs, test_ds):
+def fit(train_ds, epochs):
   for epoch in range(epochs):
     start = time.time()
 
     #display.clear_output(wait=True)
 
-    for example_input, example_target in test_ds.take(1):
-      generate_images(generator, example_input, example_target)
+    # for example_input, example_target in test_ds.take(1):
+    #   generate_images(generator, example_input, example_target)
     print("Epoch: ", epoch)
 
     # Train
@@ -232,16 +232,16 @@ def fit(train_ds, epochs, test_ds):
 
 
 def main():
-    PATH = 'data/train/'
+    #PATH = 'data/train/'
     
     BUFFER_SIZE = 400
-    BATCH_SIZE = 1
+    BATCH_SIZE = 5
     IMG_WIDTH = 256
     IMG_HEIGHT = 256
     OUTPUT_CHANNELS = 3
     
     train_dataset = load_images("data/train", batch_size=BATCH_SIZE)
-    test_dataset = load_images("data/test", batch_size=BATCH_SIZE)
+    #test_dataset = load_images("data/test", batch_size=BATCH_SIZE)
 
     # down_model = downsample(3, 4)
     # down_result = down_model(tf.expand_dims(inp, 0))
@@ -268,14 +268,14 @@ def main():
     # plt.imshow(disc_out[0, ..., -1], vmin=-20, vmax=20, cmap='RdBu_r')
     # plt.colorbar()
     
-    for example_input, example_target in test_dataset.take(1):
-      generate_images(generator, example_input, example_target)
+    # for example_input, example_target in test_dataset.take(1):
+    #   generate_images(generator, example_input, example_target)
 
-    fit(train_dataset, EPOCHS, test_dataset)
+    fit(train_dataset, EPOCHS)
     
     # Run the trained model on a few examples from the test dataset
-    for inp, tar in test_dataset.take(5):
-      generate_images(generator, inp, tar)
+    # for inp, tar in test_dataset.take(1):
+    #   generate_images(generator, inp, tar)
 
 
 if __name__ == "__main__":
@@ -296,7 +296,7 @@ if __name__ == "__main__":
                                      generator=generator,
                                      discriminator=discriminator)
     
-    GENERATE_IMG_FROM_CHECKPOINT = False
+    GENERATE_IMG_FROM_CHECKPOINT = True
     
     if GENERATE_IMG_FROM_CHECKPOINT:
         checkpoint.restore(tf.train.latest_checkpoint(checkpoint_dir))
