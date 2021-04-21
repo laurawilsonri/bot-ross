@@ -235,7 +235,7 @@ def main():
     #PATH = 'data/train/'
     
     BUFFER_SIZE = 400
-    BATCH_SIZE = 5
+    BATCH_SIZE = 1
     IMG_WIDTH = 256
     IMG_HEIGHT = 256
     OUTPUT_CHANNELS = 3
@@ -296,13 +296,13 @@ if __name__ == "__main__":
                                      generator=generator,
                                      discriminator=discriminator)
     
-    GENERATE_IMG_FROM_CHECKPOINT = True
+    GENERATE_IMG_FROM_CHECKPOINT = False
     
     if GENERATE_IMG_FROM_CHECKPOINT:
         checkpoint.restore(tf.train.latest_checkpoint(checkpoint_dir))
         test_dataset = load_images("data/test", batch_size=1)
         i = 0
-        for example_input, example_target in test_dataset.take(20):
+        for example_input, example_target in test_dataset.take(1):
           generate_images(generator, example_input, example_target, img_title=i)
           i+=1
         
