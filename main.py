@@ -300,7 +300,7 @@ if __name__ == "__main__":
     
     if GENERATE_IMG_FROM_CHECKPOINT:
         checkpoint.restore(tf.train.latest_checkpoint(checkpoint_dir))
-        test_dataset = load_images("data/train", batch_size=1)
+        test_dataset = load_images("data/test", batch_size=1)
         i = 0
         for example_input, example_target in test_dataset.take(20):
           generate_images(generator, example_input, example_target, img_title=i)
