@@ -296,7 +296,7 @@ if __name__ == "__main__":
                                      generator=generator,
                                      discriminator=discriminator)
     
-    GENERATE_IMG_FROM_CHECKPOINT = True
+    GENERATE_IMG_FROM_CHECKPOINT = False
     
     if GENERATE_IMG_FROM_CHECKPOINT:
         checkpoint.restore(tf.train.latest_checkpoint(checkpoint_dir))
